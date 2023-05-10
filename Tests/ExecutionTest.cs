@@ -453,12 +453,49 @@ namespace Tests
         [TestMethod]
         public void TestAND()
         {
-            CPU cpu = Util.CreateWithROM(new byte[] { 0x29, 0x00, 0x20 });
+            CPU cpu = Util.CreateWithROM(new byte[] { 0x2D, 0x00, 0x20 });
             cpu.Write(0x2000, 0b00001111);
             cpu.A = 0xFF;
             cpu.Step();
             Assert.AreEqual(0b00001111, cpu.A);
             Assert.IsFalse(cpu.N);
+            Assert.IsFalse(cpu.Z);
+        }
+
+        [TestMethod]
+        public void TestBIT()
+        {
+            CPU cpu = Util.CreateWithROM(new byte[] { 0x2C, 0x00, 0x20 });
+            cpu.Write(0x2000, 0b11110000);
+            cpu.A = 0b11011001;
+            cpu.Step();
+            Assert.IsTrue(cpu.N);
+            Assert.IsTrue(cpu.V);
+            Assert.IsFalse(cpu.Z);
+        }
+
+        [TestMethod]
+        public void TestEOR()
+        {
+            CPU cpu = Util.CreateWithROM(new byte[] { 0x4D, 0x00, 0x20 });
+            cpu.Write(0x2000, 0b11110000);
+            cpu.A = 0b11011001;
+            cpu.Step();
+            Assert.AreEqual(0b00101001, cpu.A);
+            Assert.IsFalse(cpu.N);
+            Assert.IsFalse(cpu.Z);
+        }
+
+        [TestMethod]
+        public void TestORA()
+        {
+            CPU cpu = Util.CreateWithROM(new byte[] { 0x0D, 0x00, 0x20 });
+            cpu.Write(0x2000, 0b11110000);
+            cpu.A = 0b11011001;
+            cpu.Step();
+            Assert.AreEqual(0b11111001, cpu.A);
+            Assert.IsTrue(cpu.N);
+            Assert.IsFalse(cpu.Z);
         }
     }
 }

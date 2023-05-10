@@ -464,6 +464,64 @@ namespace Modular6502
                 case 0x31:
                     AND(zero_y_ind());
                     break;
+
+                case 0x2C:
+                    BIT(abs());
+                    break;
+                case 0x24:
+                    BIT(zero());
+                    break;
+
+                case 0x49:
+                    EOR(imm());
+                    break;
+                case 0x4D:
+                    EOR(abs());
+                    break;
+                case 0x5D:
+                    EOR(x_abs());
+                    break;
+                case 0x59:
+                    EOR(y_abs());
+                    break;
+                case 0x45:
+                    EOR(zero());
+                    break;
+                case 0x55:
+                    EOR(x_zero());
+                    break;
+                case 0x41:
+                    EOR(x_zero_ind());
+                    break;
+                case 0x51:
+                    EOR(zero_y_ind());
+                    break;
+
+                case 0x09:
+                    ORA(imm());
+                    break;
+                case 0x0D:
+                    ORA(abs());
+                    break;
+                case 0x1D:
+                    ORA(x_abs());
+                    break;
+                case 0x19:
+                    ORA(y_abs());
+                    break;
+                case 0x05:
+                    ORA(zero());
+                    break;
+                case 0x15:
+                    ORA(x_zero());
+                    break;
+                case 0x01:
+                    ORA(x_zero_ind());
+                    break;
+                case 0x11:
+                    ORA(zero_y_ind());
+                    break;
+
                 #endregion
                 default:
                     break;
@@ -675,6 +733,28 @@ namespace Modular6502
         public void AND(byte val)
         {
             A = (byte)(A & val);
+            N = (A & 0b10000000) != 0;
+            Z = A == 0;
+        }
+
+        public void BIT(byte val)
+        {
+            var and = (byte)(A & val);
+            N = (val & 0b10000000) != 0;
+            V = (val & 0b01000000) != 0;
+            Z = and == 0;
+        }
+
+        public void EOR(byte val)
+        {
+            A = (byte)(A ^ val);
+            N = (A & 0b10000000) != 0;
+            Z = A == 0;
+        }
+
+        public void ORA(byte val)
+        {
+            A = (byte)(A | val);
             N = (A & 0b10000000) != 0;
             Z = A == 0;
         }

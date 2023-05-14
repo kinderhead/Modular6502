@@ -497,5 +497,167 @@ namespace Tests
             Assert.IsTrue(cpu.N);
             Assert.IsFalse(cpu.Z);
         }
+
+        [TestMethod]
+        public void TestCMP()
+        {
+            CPU cpu = Util.CreateWithROM(new byte[] { 0xC9, 15, 0xC9, 70, 0xC9, 69 });
+            cpu.A = 69;
+            cpu.Step();
+            Assert.IsFalse(cpu.N);
+            Assert.IsFalse(cpu.Z);
+            Assert.IsTrue(cpu.C);
+            cpu.Step();
+            Assert.IsTrue(cpu.N);
+            Assert.IsFalse(cpu.C);
+            Assert.IsFalse(cpu.Z);
+            cpu.Step();
+            Assert.IsFalse(cpu.N);
+            Assert.IsTrue(cpu.Z);
+            Assert.IsTrue(cpu.C);
+        }
+
+        [TestMethod]
+        public void TestCPX()
+        {
+            CPU cpu = Util.CreateWithROM(new byte[] { 0xE0, 15, 0xE0, 70, 0xE0, 69 });
+            cpu.X = 69;
+            cpu.Step();
+            Assert.IsFalse(cpu.N);
+            Assert.IsFalse(cpu.Z);
+            Assert.IsTrue(cpu.C);
+            cpu.Step();
+            Assert.IsTrue(cpu.N);
+            Assert.IsFalse(cpu.C);
+            Assert.IsFalse(cpu.Z);
+            cpu.Step();
+            Assert.IsFalse(cpu.N);
+            Assert.IsTrue(cpu.Z);
+            Assert.IsTrue(cpu.C);
+        }
+
+        [TestMethod]
+        public void TestCPY()
+        {
+            CPU cpu = Util.CreateWithROM(new byte[] { 0xC0, 15, 0xC0, 70, 0xC0, 69 });
+            cpu.Y = 69;
+            cpu.Step();
+            Assert.IsFalse(cpu.N);
+            Assert.IsFalse(cpu.Z);
+            Assert.IsTrue(cpu.C);
+            cpu.Step();
+            Assert.IsTrue(cpu.N);
+            Assert.IsFalse(cpu.C);
+            Assert.IsFalse(cpu.Z);
+            cpu.Step();
+            Assert.IsFalse(cpu.N);
+            Assert.IsTrue(cpu.Z);
+            Assert.IsTrue(cpu.C);
+        }
+
+        [TestMethod]
+        public void TestSBC()
+        {
+            CPU cpu = Util.CreateWithROM(new byte[] { 0xE9, 55, 0xE9, 56 });
+            cpu.A = 110;
+            cpu.Step();
+            Assert.IsFalse(cpu.N);
+            Assert.IsFalse(cpu.Z);
+            Assert.IsTrue(cpu.C);
+            Assert.AreEqual(55, cpu.A);
+            cpu.C = false;
+            cpu.Step();
+            Assert.IsTrue(cpu.N);
+            Assert.IsFalse(cpu.Z);
+            Assert.IsFalse(cpu.C);
+            Assert.AreEqual(-2, (sbyte)cpu.A);
+        }
+
+        [TestMethod]
+        public void TestDEC()
+        {
+            CPU cpu = Util.CreateWithROM(new byte[] { 0xCE, 0x00, 0x20 });
+            cpu.Write(0x2000, 5);
+            cpu.Step();
+            Assert.AreEqual(4, cpu.Read(0x2000));
+            Assert.IsFalse(cpu.N);
+            Assert.IsFalse(cpu.Z);
+        }
+
+        [TestMethod]
+        public void TestDEX()
+        {
+            CPU cpu = Util.CreateWithROM(new byte[] { 0xCA });
+            cpu.X = 5;
+            cpu.Step();
+            Assert.AreEqual(4, cpu.X);
+            Assert.IsFalse(cpu.N);
+            Assert.IsFalse(cpu.Z);
+        }
+
+        [TestMethod]
+        public void TestDEY()
+        {
+            CPU cpu = Util.CreateWithROM(new byte[] { 0x88 });
+            cpu.Y = 5;
+            cpu.Step();
+            Assert.AreEqual(4, cpu.Y);
+            Assert.IsFalse(cpu.N);
+            Assert.IsFalse(cpu.Z);
+        }
+
+        [TestMethod]
+        public void TestINC()
+        {
+            CPU cpu = Util.CreateWithROM(new byte[] { 0xEE, 0x00, 0x20 });
+            cpu.Write(0x2000, 5);
+            cpu.Step();
+            Assert.AreEqual(6, cpu.Read(0x2000));
+            Assert.IsFalse(cpu.N);
+            Assert.IsFalse(cpu.Z);
+        }
+
+        [TestMethod]
+        public void TestINX()
+        {
+            CPU cpu = Util.CreateWithROM(new byte[] { 0xE8 });
+            cpu.X = 5;
+            cpu.Step();
+            Assert.AreEqual(6, cpu.X);
+            Assert.IsFalse(cpu.N);
+            Assert.IsFalse(cpu.Z);
+        }
+
+        [TestMethod]
+        public void TestINY()
+        {
+            CPU cpu = Util.CreateWithROM(new byte[] { 0xC8 });
+            cpu.Y = 5;
+            cpu.Step();
+            Assert.AreEqual(6, cpu.Y);
+            Assert.IsFalse(cpu.N);
+            Assert.IsFalse(cpu.Z);
+        }
+
+        [TestMethod]
+        public void TestJMP()
+        {
+            CPU cpu = Util.CreateWithROM(new byte[] { 0x6C, 0x00, 0x20 });
+            cpu.WriteWord(0x2000, 0x6969);
+            cpu.Step();
+            Assert.AreEqual(0x6969, cpu.PC);
+        }
+
+        [TestMethod]
+        public void TestJSRRTS()
+        {
+            CPU cpu = Util.CreateWithFile("jsr.rom");
+            for (int i = 0; i < 4; i++)
+            {
+                cpu.Step();
+            }
+            Assert.AreEqual(0, cpu.A);
+            Assert.AreEqual(0x40, cpu.X);
+        }
     }
 }

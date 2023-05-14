@@ -238,6 +238,77 @@ namespace Modular6502
                 case 0x71:
                     ADC(zero_y_ind());
                     break;
+
+                case 0xC9:
+                    CMP(imm());
+                    break;
+                case 0xCD:
+                    CMP(abs());
+                    break;
+                case 0xDD:
+                    CMP(x_abs());
+                    break;
+                case 0xD9:
+                    CMP(y_abs());
+                    break;
+                case 0xC5:
+                    CMP(zero());
+                    break;
+                case 0xD5:
+                    CMP(x_zero());
+                    break;
+                case 0xC1:
+                    CMP(x_zero_ind());
+                    break;
+                case 0xD1:
+                    CMP(zero_y_ind());
+                    break;
+
+                case 0xE0:
+                    CPX(imm());
+                    break;
+                case 0xEC:
+                    CPX(abs());
+                    break;
+                case 0xE4:
+                    CPX(zero());
+                    break;
+
+                case 0xC0:
+                    CPY(imm());
+                    break;
+                case 0xCC:
+                    CPY(abs());
+                    break;
+                case 0xC4:
+                    CPY(zero());
+                    break;
+
+                case 0xE9:
+                    SBC(imm());
+                    break;
+                case 0xED:
+                    SBC(abs());
+                    break;
+                case 0xFD:
+                    SBC(x_abs());
+                    break;
+                case 0xF9:
+                    SBC(y_abs());
+                    break;
+                case 0xE5:
+                    SBC(zero());
+                    break;
+                case 0xF5:
+                    SBC(x_zero());
+                    break;
+                case 0xE1:
+                    SBC(x_zero_ind());
+                    break;
+                case 0xF1:
+                    SBC(zero_y_ind());
+                    break;
+
                 #endregion
                 #region Loading
                 case 0xA9:
@@ -523,7 +594,67 @@ namespace Modular6502
                     break;
 
                 #endregion
+                #region Increments
+                case 0xCE:
+                    DEC(write_abs());
+                    break;
+                case 0xDE:
+                    DEC(write_x_abs());
+                    break;
+                case 0xC6:
+                    DEC(write_zero());
+                    break;
+                case 0xD6:
+                    DEC(write_x_zero());
+                    break;
+
+                case 0xCA:
+                    DEX();
+                    break;
+
+                case 0x88:
+                    DEY();
+                    break;
+
+                case 0xEE:
+                    INC(write_abs());
+                    break;
+                case 0xFE:
+                    INC(write_x_abs());
+                    break;
+                case 0xE6:
+                    INC(write_zero());
+                    break;
+                case 0xF6:
+                    INC(write_x_zero());
+                    break;
+
+                case 0xE8:
+                    INX();
+                    break;
+
+                case 0xC8:
+                    INY();
+                    break;
+                #endregion
+                #region Control
+                case 0x4C:
+                    JMP(write_abs());
+                    break;
+                case 0x6C:
+                    JMP(ReadWord(ReadNextWord()));
+                    break;
+
+                case 0x20:
+                    JSR(write_abs());
+                    break;
+
+                case 0x60:
+                    RTS();
+                    break;
+                #endregion
                 default:
+                    Console.WriteLine("Unknown instruction " + insn.ToString());
                     break;
             }
 
@@ -541,6 +672,24 @@ namespace Modular6502
                 var res = A + val + (C ? 1 : 0);
                 var sres = (sbyte)A + (sbyte)val + (C ? 1 : 0);
                 C = res > 255;
+                Z = res == 0;
+                V = sres > 127 || sres < -128;
+                N = sres < 0;
+                A = (byte)res;
+            }
+        }
+
+        public void SBC(byte val)
+        {
+            if (D)
+            {
+                // TODO: decimal mode
+            }
+            else
+            {
+                var res = A - val - (C ? 0 : 1);
+                var sres = (sbyte)A - (sbyte)val - (C ? 0 : 1);
+                C = sres >= 0;
                 Z = res == 0;
                 V = sres > 127 || sres < -128;
                 N = sres < 0;
@@ -757,6 +906,80 @@ namespace Modular6502
             A = (byte)(A | val);
             N = (A & 0b10000000) != 0;
             Z = A == 0;
+        }
+
+        public void Compare(byte val, byte reg)
+        {
+            byte sub = (byte)(reg - val);
+            Z = val == reg;
+            N = (sub & 0b10000000) != 0;
+            C = val <= reg;
+        }
+
+        public void CMP(byte val) => Compare(val, A);
+        public void CPX(byte val) => Compare(val, X);
+        public void CPY(byte val) => Compare(val, Y);
+
+        public void DEC(ushort addr)
+        {
+            byte res = (byte)(Read(addr) - 1);
+            Write(addr, res);
+            N = (res & 0b10000000) != 0;
+            Z = res == 0;
+        }
+
+        public void DEX()
+        {
+            X--;
+            N = (X & 0b10000000) != 0;
+            Z = X == 0;
+        }
+
+        public void DEY()
+        {
+            Y--;
+            N = (Y & 0b10000000) != 0;
+            Z = Y == 0;
+        }
+
+        public void INC(ushort addr)
+        {
+            byte res = (byte)(Read(addr) + 1);
+            Write(addr, res);
+            N = (res & 0b10000000) != 0;
+            Z = res == 0;
+        }
+
+        public void INX()
+        {
+            X++;
+            N = (X & 0b10000000) != 0;
+            Z = X == 0;
+        }
+
+        public void INY()
+        {
+            Y++;
+            N = (Y & 0b10000000) != 0;
+            Z = Y == 0;
+        }
+
+        public void JMP(ushort addr)
+        {
+            PC = addr;
+        }
+
+        public void JSR(ushort addr)
+        {
+            WriteWord((ushort)(0x0100 + SP - 1), (ushort)(PC - 1));
+            SP -= 2;
+            PC = addr;
+        }
+
+        public void RTS()
+        {
+            PC = (ushort)(ReadWord((ushort)(0x0100 + SP + 1)) + 1);
+            SP += 2;
         }
     }
 }

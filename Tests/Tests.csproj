@@ -20,4 +20,10 @@
     <ProjectReference Include="..\Modular6502\Modular6502.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="jsr.rom">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

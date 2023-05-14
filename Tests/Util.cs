@@ -31,5 +31,10 @@ namespace Tests
             cpu.SP = 0xFF;
             return cpu;
         }
+
+        public static CPU CreateWithFile(string path)
+        {
+            return CreateWithROM(File.ReadAllBytes(path));
+        }
     }
 }
